@@ -1,0 +1,4 @@
+facts:
+
+  - Perhaps use puppetlabs-stdlib and create fact files under
+    /etc/facter/facts.d

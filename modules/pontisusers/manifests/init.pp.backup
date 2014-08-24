@@ -1,0 +1,13 @@
+class pontisusers {
+account { 
+  'sysadmin':
+    ensure   => 'present',
+    home_dir => '/home/sysadmin',
+    uid      => '3333',
+    gid      => '3333',
+    password => '$6$f.wegPF0$NyAAlOY6ZjLTsSaLBDeRnvpBpfaO4mdN0BgV7peVftkp9Ayt5AC9tUEfqfnnMfzYySWCzo/.//b0SGaECVqwH/',
+    ssh_key  => 'AAAAB3NzaC1yc2EAAAABIwAAAQEArfQmMkvtWRnwas3DIti9qAuSFQXKcE0kdp5f42PP8l2kTytJPPWp5T/q8PXDQ2d2X5KplMCMDiUQkchqhmDp840jsqBQ9iZPejAjv3w2kITgScFNymAcErtzX52iw4lnUyjZzomCW8G3YthQMaRm2NkI4wcVcjzq+SKyTfzrBoH21RgZlfcx+/50AFRrarpYqel9W5DuLmmShHxD8clPS532Z/1X+1jCW2KikUhdo98lxYTIgFno05lwFOS9Ry89UyBarn1Ecp1zXpIBE7dMQif3UyLUTU9zCVIoZiJj4iO5lemSSV0v8GL97qclBUVJpaCpc4ebR7bhi0nQ28RcxQ==',
+    comment   => 'SysAdmin user',
+    manage_home => 'true',
+}
+}

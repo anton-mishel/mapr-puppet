@@ -1,0 +1,181 @@
+system::augeas:
+  'ntp':
+    context: '/files/etc/ntp.conf'
+    changes:
+      - 'set server[1] dc-01.pontis.local'
+      - 'set server[2] dc-02.pontis.local'
+  'postfix':
+    context: '/files/etc/postfix/main.cf'
+    changes:
+      - 'set relayhost mx.netvision.net.il'
+
+system::crontabs:
+  'logrotate':
+    command: '/usr/sbin/logrotate'
+    user:    'root'
+    hour:    '2'
+    minute:  '0'
+
+system::execs:
+
+system::facts:
+  location:
+    value: 'Pontis-Lab'
+  ntpq:
+    type:  'script'
+    value: "#!/bin/bash\nprintf ntpq=\n/usr/sbin/ntpq -p | /usr/bin/tail -1\n"
+
+system::files:
+  /opt/mapr:
+    ensure:  'directory'
+    owner:   'mapr'
+    group:   'mapr'
+    mode:    '0755'
+  /etc/motd:
+    ensure:  'present'
+    owner:   'root'
+    group:   'root'
+    mode:    '0644'
+    content: "Authorised access only\nIf unauthorised log off now or face prosecution\n"
+  /etc/sudoers:
+    ensure:  'present'
+    owner:   'root'
+    group:   'root'
+    mode:    '0440'
+    source:  'puppet:///files/default-sudoers' 
+
+system::groups:
+  'mapr':
+    ensure: 'present'
+    gid:    '1100'
+
+system::groups::realize:
+  - 'mapr'
+
+system::hosts:
+  puppet:
+    ensure:       'dev-foreman'
+    ip:           '172.30.1.21'
+    host_aliases: [ 'pontis.local' ]
+
+system::limits:
+  '*':
+    nofile:
+      soft: 64000 
+      hard: 64000 
+  'mapr':
+    nofile: 32768
+    nproc: unlimited
+    memlock: unlimited
+    core: unlimited
+    nice:  -10
+    renice: -10
+    
+system::mail:
+  aliases:
+    postmaster:
+      recipient: 'root'
+    webmaster:
+      recipient: 'it@pontis.com'
+  relayhost:     'mail.pontis.com'
+  type:          'postfix'
+
+system::mounts:
+  '/nfs/hadoopon/qa':
+    device:  'hadoopon-nfs:/mapr/Hadoopon/qa'
+    fstype:  'nfs'
+    options: 'rw,bg,hard,nointr,rsize=32768,wsize=32768,tcp,vers=3,timeo=600'
+
+system::ntp::iburst:  'true'
+system::ntp::country: 'israel'
+
+
+system::services:
+  cups:
+    ensure: 'stopped'
+    enable: 'false'
+  sshd:
+    ensure: 'running'
+    enable: 'true'
+
+system::sshd:
+  PasswordAuthentication:
+    value:     'yes'
+  Protocol:
+    value:     '2'
+  PermitRootLogin:
+    value:     'yes'
+
+system::sshd::sync_host_keys: true
+
+system::sshd::subsystem:
+  sftp:
+    command:   '/usr/libexec/openssh/sftp-server -u 0002'
+
+system::sysctl:
+  kernel.msgmnb:
+    value: '131072'
+    comment: 'Controls the default maxmimum size of a message queue'
+  kernel.msgmax:
+    value: '131072'
+    comment: ' Controls the maximum size of a message, in bytes'
+
+system::templates:
+  /etc/motd:
+    owner:    'root'
+    group:    'root'
+    mode:     '0644'
+    template: "/var/lib/puppet/templates/motd-%{osfamily}.erb"
+  /etc/environment:
+    owner:    'root'
+    group:    'root'
+    mode:     '0644'
+    template: "environment.erb"
+
+system::users:
+  'keith':
+    ensure:    'present'
+    comment:   'Keith Burdis'
+    gid:       '500'
+    groups:    ['wheel']
+    home:      '/home/keith'
+    password:  '$6$...'
+    shell:     '/bin/bash'
+    uid:       '500'
+  'fred':
+    comment:   'Fred Bloggs'
+    uid:       '503'
+    gid:       '503'
+    home:      '/home/fred'
+    managehome: true
+
+system::users::realize:
+  - 'keith'
+  - 'fred'
+
+system::yumgroups:
+  'Base':
+    ensure: 'present'
+  'Console internet tools':
+    ensure: 'present'
+
+system::yumrepos:
+  'puppetlabs-deps':
+    baseurl:  'http://yum.puppetlabs.com/fedora/f17/dependencies/$basearch'
+    descr:    'Puppet Labs Dependencies Fedora 17 - $basearch'
+    enabled:  '1'
+    gpgcheck: '1'
+    gpgkey:   'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppetlabs'
+  'puppetlabs-products':
+    baseurl:  'http://yum.puppetlabs.com/fedora/f17/products/$basearch'
+    descr:    'Puppet Labs Products Fedora 17 - $basearch'
+    enabled:  '1'
+    gpgcheck: '1'
+    gpgkey:   'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppetlabs'
+
+
+system::providers:
+  host: 'augeas'
+  mailalias: 'augeas'
+  mounttab: 'augeas'
+

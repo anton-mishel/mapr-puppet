@@ -1,0 +1,313 @@
+system::network::dns:
+  nameservers: [ '172.30.1.54' ]
+  domains:     [ 'pontis.local lab.pontis.local' ]
+
+
+system::groups:
+  'mapr':
+    ensure: 'present'
+    gid:    '1000'
+  'pontis':
+    ensure: 'present'
+    gid:    '1002'
+system::groups::realize:
+  - 'mapr'
+  - 'pontis'
+
+
+accounts:
+  'mapr':
+    ensure:    'present'
+    create_group:   'false'
+    comment:   'MapR Technical User'
+    gid:       '1000'
+    home_dir:      '/home/mapr'
+    shell:     '/bin/bash'
+    uid:       '1000'
+    password:  '$6$f.wegPF0$NyAAlOY6ZjLTsSaLBDeRnvpBpfaO4mdN0BgV7peVftkp9Ayt5AC9tUEfqfnnMfzYySWCzo/.//b0SGaECVqwH/'
+  'hive':
+    ensure:    'present'
+    create_group:   'false'
+    comment:   'Hive User'
+    gid:       '1000'
+    home_dir:      '/home/hive'
+    shell:     '/bin/bash'
+    uid:       '1001'
+    password:  '$6$LG3pxJMC$wnX4YU9d4tgBxeR6.4Hhkc6GsA5qyYDBf.jESlzq7nYJLzgm2Fb9s1bJ3ZoZ7Q2S5d9srRQDqHDJGCr5RbjFX/'
+  'integrator':
+    ensure:    'present'
+    create_group:   'false'
+    comment:   'Integrator User'
+    gid:       '1000'
+    home_dir:      '/home/integrator'
+    shell:     '/bin/bash'
+    uid:       '1002'
+    password:  '$6$qJZ/vI.p$3uKYngOo7DGZRCEmsq7iIAxRGLpOF1xnKOZr6YtmK4YDX48qEc2fnGLfvMhl1Y8Jz/gXaeLY4oHoduXc8/m0L.'
+  'jobs':
+    ensure:    'present'
+    create_group:   'false'
+    comment:   'Integrator User'
+    gid:       '1000'
+    home_dir:      '/home/jobs'
+    shell:     '/bin/bash'
+    uid:       '1003'
+    password:  '$6$4HZU8RJi$7OLrYhlatANZtx1pk7Nq4CdafXrift0S1xFTsX.IDdmBH9w1T4M.0AetKMHAUay4V5I4umESOj2niLmYP.e5a/'
+  'analyst':
+    ensure:    'present'
+    create_group:   'false'
+    comment:   'Integrator User'
+    gid:       '1002'
+    home_dir:      '/home/analyst'
+    shell:     '/bin/bash'
+    uid:       '1004'
+    password:  '$6$aHcFDjgJ$HOlAeOU3/JsvqyG8tuYD46obDJkOx2euKNxyb5i.uAOYWsYbl1FpuBZGZi0mR0VVxqb6ApuLoGUI4h6JgSJEU0'
+  'pontis':
+    ensure:    'present'
+    create_group:   'false'
+    comment:   'Pontis User'
+    gid:       '1000'
+    home_dir:      '/home/pontis'
+    shell:     '/bin/bash'
+    uid:       '10025'
+    password:  '$6$lzZK8sHY$A8J2c2r/v/s9ZqlJEtytwWI4iFotXRwbwd/OoF/3nl2rpCTpM3kZXOVrkl2HnY0zuBIjtQdOk1qoMNTe4rHgu1'
+
+
+system::crontabs:
+  'logrotate':
+    command: '/usr/sbin/logrotate'
+    user:    'root'
+    hour:    '2'
+    minute:  '0'
+
+system::execs:
+
+system::facts:
+  location:
+    value: 'Pontis-Lab'
+  ntpq:
+    type:  'script'
+    value: "#!/bin/bash\nprintf ntpq=\n/usr/sbin/ntpq -p | /usr/bin/tail -1\n"
+
+system::files:
+  /tmp/anton:
+    ensure:  'directory'
+    owner:   'root'
+    group:   'root'
+    mode:    '0755'
+  /etc/motd:
+    ensure:  'present'
+    owner:   'root'
+    group:   'root'
+    mode:    '0644'
+    content: "Authorised access only\nIf unauthorised log off now or face prosecution\n"
+
+
+system::limits:
+  '*':
+    nofile:
+     soft: 64000 
+     hard: 64000 
+    core:
+     soft: unlimited
+     hard: unlimited 
+  'mapr':
+    nofile: 
+     hard: 32768
+    nproc: 
+     hard: unlimited
+    nice:
+     hard:  -10
+  'pontis':
+    nofile:
+     hard: 64000
+    nproc:
+     hard: unlimited
+    nice:
+     hard:  -10 
+
+system::mail:
+  aliases:
+    postmaster:
+      recipient: 'root'
+    webmaster:
+      recipient: 'it@pontis.com'
+  relayhost:     'mail.pontis.com'
+  type:          'postfix'
+
+system::mounts:
+  '/nfs/hadoopon/qa':
+    device:  'hadoopon-nfs:/mapr/Hadoopon/qa'
+    fstype:  'nfs'
+    options: 'rw,bg,hard,nointr,rsize=32768,wsize=32768,tcp,vers=3,timeo=600'
+
+system::ntp::iburst:  'true'
+system::ntp::country: 'israel'
+system::ntp::servers: [ 'dev-foreman' ]
+
+system::services:
+  cups:
+    ensure: 'stopped'
+    enable: 'false'
+  sshd:
+    ensure: 'running'
+    enable: 'true'
+  iptables:
+    ensure: 'stopped'
+    enable: 'false'
+  ip6tables:
+    ensure: 'stopped'
+    enable: 'false'
+  rsyslog:
+    ensure: 'running'
+    enable: 'true'
+  nfs:
+    ensure: 'stopped'
+    enable: 'false'
+  autofs:
+    ensure: 'stopped'
+    enable: 'false'
+
+
+
+system::sshd:
+  PasswordAuthentication:
+    value:     'yes'
+  Protocol:
+    value:     '2'
+  PermitRootLogin:
+    value:     'yes'
+
+system::sshd::sync_host_keys: true
+
+system::sshd::subsystem:
+  sftp:
+    command:   '/usr/libexec/openssh/sftp-server -u 0002'
+
+system::sysctl:
+  kernel.msgmnb:
+    value: '65536'
+    comment: 'Controls the default maxmimum size of a message queue'
+  kernel.msgmax:
+    value: '65536'
+    comment: ' Controls the maximum size of a message, in bytes'
+  vm.overcommit_memory:
+    value: '0'
+    comment: 'The default setting. The kernel performs heuristic memory overcommit handling'
+  vm.swappiness:
+    value: '0'
+    comment: 'Controls RAM swapping'
+  kernel.shmmax:
+    value: '68719476736'
+    comment: 'Controls the maximum shared segment size, in bytes'
+  kernel.msgmax:
+    value: '65536'
+    comment: 'Controls the maximum size of a message, in bytes' 
+  net.ipv4.tcp_rmem:
+    value: '4096 1048576 4194304'
+    comment: 'net.ipv4.tcp_rmem'
+  net.ipv4.tcp_wmem:
+    value: '4096 1048576 4194304'
+    comment: 'net.ipv4.tcp_wmem'
+  net.ipv4.tcp_mem: 
+    value: '8388608 8388608 8388608'
+    comment: 'net.ipv4.tcp_mem'
+  net.ipv4.tcp_retries2:
+    value: '2'
+    comment: 'net.ipv4.tcp_retries2 value'	
+
+
+system::sysconfig::clock:
+  timezone: 'Asia/Jerusalem'
+
+system::sysconfig::i18n:
+  # Run 'locale -a' to see possible lang values
+  lang: 'en_GB.utf8'
+
+system::sysconfig::keyboard:
+  keytable:     'uk'
+  model:        'pc105'
+  layout:       'gb'
+  keyboardtype: 'pc'
+
+system::sysconfig::selinux:
+  state: 'disabled'
+
+
+
+system::templates:
+  /etc/motd:
+    owner:    'root'
+    group:    'root'
+    mode:     '0644'
+    template: "/var/lib/puppet/templates/motd-%{osfamily}.erb"
+  /etc/environment:
+    owner:    'root'
+    group:    'root'
+    mode:     '0644'
+    template: "environment.erb"
+
+system::yumgroups:
+  'Base':
+    ensure: 'present'
+  'Console internet tools':
+    ensure: 'present'
+
+system::yumrepos:
+  'puppetlabs-deps':
+    baseurl:  'http://dev-foreman:8080/puppetlabs-deps'
+    descr:    'Puppet Labs Deps'
+    enabled:  '1'
+    gpgcheck: '0'
+  'puppetlabs-products':
+    baseurl:  'http://dev-foreman:8080/puppetlabs-products'
+    descr:    'Puppet Labs Products'
+    enabled:  '1'
+    gpgcheck: '0'
+  'maprtech':
+    baseurl:  'http://dev-foreman:8080/maprtech'
+    descr:    'Pontis repo for MapR software'
+    enabled:  '1'
+    gpgcheck: '0'
+  'maprecosystem':
+    baseurl:  'http://dev-foreman:8080/maprtech'
+    descr:    'Pontis repo for MapR software'
+    enabled:  '1'
+    gpgcheck: '0'
+  'base':
+    baseurl:  'http://dev-foreman:8080/base'
+    descr:    'Pontis repo for CentoS6  base software'
+    enabled:  '1'
+    gpgcheck: '0'
+  'epel':
+    baseurl:  'http://dev-foreman:8080/epel'
+    descr:    'Epel repo'
+    enabled:  '1'
+    gpgcheck: '0' 
+  'rpmforge':
+    baseurl:  'http://dev-foreman:8080/rpmforge'
+    descr:    'rpmforge repo'
+    enabled:  '1'
+    gpgcheck: '0'
+  'SCL':
+    baseurl:  'http://dev-foreman:8080/SCL'
+    descr:    'SCL repo'
+    enabled:  '1'
+    gpgcheck: '0'
+  'pontis':
+    baseurl:  'http://dev-foreman:8080/pontis'
+    descr:    'pontis repo'
+    enabled:  '1'
+    gpgcheck: '0'
+
+
+system::sysconfig::puppet:
+  server: 'dev-foreman.pontis.local'
+
+
+
+
+system::providers:
+  host: 'augeas'
+  mailalias: 'augeas'
+  mounttab: 'augeas'
+

@@ -1,0 +1,19 @@
+# File managed by Puppet
+DEVICE=<%= @_interface %>
+BOOTPROTO=<% if @_dhcp %>dhcp<% else %>none<% end %>
+<% if @_hwaddr != '' %>HWADDR=<%= @_hwaddr %><% end %>
+<% if @_alias -%>
+ONPARENT=yes
+<% else -%>
+ONBOOT=<% if @_onboot %>yes<% else %>no<% end %>
+HOTPLUG=<% if @_hotplug %>yes<% else %>no<% end %>
+<% end -%>
+TYPE=<%= @_type %>
+IPADDR=<%= @_ipaddr %>
+NETMASK=<%= @_netmask %>
+<% if @_ipv6init -%>
+IPV6INIT=yes
+<% if @_ipv6addr %>IPV6ADDR=<%= @_ipv6addr %><% end %>
+<% if @_ipv6addr_secondaries %>IPV6ADDR_SECONDARIES=<%= @_ipv6addr_secondaries %><% end %>
+IPV6_AUTOCONF=<% if @_ipv6autoconf %>yes<% else %>no<% end %>
+<% end -%>

@@ -1,0 +1,11 @@
+0.6.0
+
+* limits: Use erwbgy-limits 0.3.0 so multiple items (eg. nofile, nproc) can be
+set for the same domain (user, group etc).  This requires changes to the data
+format.
+
+* facts: Create fact files under /etc/facter/facts.d as facter already looks
+there.
+
+* Depend on augeasproviders 0.5.1 or later as this has a fix for a library
+loading issue when using 'puppet apply'
